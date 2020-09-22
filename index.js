@@ -1,5 +1,6 @@
 var mysql = require("mysql");
-var inquire = require("inquirer");
+var inquirer = require("inquirer");
+var mainMenu = require("./lib/menus/menu");
 
 const connectionConfig = {
   host: "localhost",
@@ -19,5 +20,6 @@ var connection = mysql.createConnection(connectionConfig);
 
 connection.connect(function(error) {
     if (error) throw error;
-    console.log("Connected as id " + connection.threadId);
+    console.log("Connected as id " + connection.threadId + "\n\n");
+    mainMenu();
 });
