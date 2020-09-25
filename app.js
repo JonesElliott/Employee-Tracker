@@ -35,7 +35,7 @@ function mainMenu() {
             "Add New Department",
             "Add New Role",
             "Update Employee's Role",
-            "Update Emplyee's Manager"
+            "Update Emplpyee's Manager"
           ],
           name: "selection",
         },
@@ -63,7 +63,7 @@ function mainMenu() {
           case "Update Employee's Role":
             updateEmployeeRole();
             break;
-          case "Update Employee's Manager":
+          case "Update Emplpyee's Manager":
             updateEmployeeManager();
             break;
           default:
@@ -72,8 +72,7 @@ function mainMenu() {
       });
 }
 
-
-// Functions that Query the database
+// Functions that Query the database based on specific params
 //----------------------------------------------------------------
 function queryAllEmployees() {
     connection.query(
@@ -102,7 +101,6 @@ function queryAllEmployees() {
             mainMenu();
         });
 }
-
 
 function queryByDepartment() {
   connection
@@ -443,4 +441,57 @@ function updateEmployeeRole() {
         }
       );
     });
+}
+
+// Update the employee's manager in the database
+function updateEmployeeManager() {
+      connection.query(
+        "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS currentEmployee, employee.id FROM employee",
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+          const employees = res.map((element) => {
+            return {
+              name: element.currentEmployee,
+              value: element.id,
+            };
+          });
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                name: "employeeSelect",
+                message: "Whose manger would you like to update?",
+                choices: employees,
+              },
+              {
+                type: "list",
+                name: "managerSelect",
+                message: "Who is their new manager?",
+                choices: employees,
+              },
+            ])
+            .then((answers) => {
+              connection.query(
+                "UPDATE employee SET employee.manager_id = ? WHERE employee.id = ?;",
+                [
+                  answers.managerSelect,
+                  answers.employeeSelect,
+                ],
+                (err, res) => {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(`
+#=================================================================#
+                Employee manager Succesfully Updated
+#=================================================================#
+                  `);
+                  mainMenu();
+                }
+              );
+            });
+        }
+      );
 }
