@@ -3,7 +3,7 @@ const connection = require("./db/connection");
 const cTable = require('console.table');
 const inquirer = require("inquirer");
 var Employee = require('./scripts/employee');
-const { connect } = require("./db/connection");
+const { connect, query } = require("./db/connection");
 
 var newEmployee = new Employee();
 
@@ -32,11 +32,10 @@ function mainMenu() {
             "View Employees by Department",
             "View Employees by Manager",
             "Add New Employee",
+            "Add New Department",
+            "Add New Role",
             "Update Employee's Role",
-            "Update Emplyee's Manager",
-            "View All Roles",
-            "Add Role",
-            "Remove Role",
+            "Update Emplyee's Manager"
           ],
           name: "selection",
         },
@@ -55,20 +54,17 @@ function mainMenu() {
           case "Add New Employee":
             addEmployee();
             break;
+          case "Add New Department":
+            addDepartment();
+            break;
+          case "Add New Role":
+            addRole();
+            break;
           case "Update Employee's Role":
             updateEmployeeRole();
             break;
           case "Update Employee's Manager":
             updateEmployeeManager();
-            break;
-          case "View All Roles":
-            viewAllRoles();
-            break;
-          case "Add Role":
-            addNewRole();
-            break;
-          case "Remove Role":
-            removeRole();
             break;
           default:
             "Hmmm, that's not supposed to happen...";
@@ -241,3 +237,28 @@ function addEmployee() {
     });
 }
 
+function addDepartment() {
+  inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "Enter the name of the new Depeartment",
+          name: "newDepartment",
+        },
+      ])
+      .then(function ({ newDepartment }) {
+        // console.log("New Department " + newDepartment);
+        var queryString = `INSERT INTO department (name) VALUES (?);`
+        connection.query(queryString,
+          [newDepartment],
+          function(error, response) {
+              if (error) throw error;
+              console.log(`
+#=================================================================#
+                  Department Succesfully Added
+#=================================================================#
+              \n`);
+              mainMenu();
+          });
+      });
+}
