@@ -49,7 +49,7 @@ function mainMenu() {
             queryByDepartment();
             break;
           case "View Employees by Manager":
-            queryAllByManager();
+            queryByManager();
             break;
           case "Add New Employee":
             addEmployee();
@@ -103,6 +103,7 @@ function queryAllEmployees() {
         });
 }
 
+
 function queryByDepartment() {
   connection
     .query("SELECT department.id, department.name FROM department", (err, res) => {
@@ -120,7 +121,7 @@ function queryByDepartment() {
               {
                 type: "list",
                 name: "departmentSelect",
-                message: "Which Department would you like to search?",
+                message: "Which Department would you like to search by?",
                 choices: departments,
               }
             ])
@@ -160,32 +161,62 @@ function queryByDepartment() {
     });
 }
 
-function queryAllByManager() {
-    connection.query(
-        `SELECT
-        employee.id AS "ID",
-          employee.first_name AS "First",
-          employee.last_name AS "Last",
-          role.title AS "Title",
-          department.name AS "Department",
-          role.salary AS "Salary",
-          CONCAT(manager.first_name,' ', manager.last_name) AS "Manager"
-        FROM
-          employee
-        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
-        JOIN role ON employee.role_id = role.id
-        JOIN department ON role.department_id = department.id
-        ORDER BY manager;`,
-        function(error, response) {
-            if (error) throw error;
-            console.log(`
+function queryByManager() {
+  connection.query(
+    "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS manager, employee.id FROM employee",
+    (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const managers = res.map((element) => {
+        return {
+          name: element.manager,
+          value: element.id,
+        };
+      });
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                name: "managerSelect",
+                message: "Which Manager would you like to search by?",
+                choices: managers,
+              },
+            ])
+            .then((answers) => {
+              connection.query(
+                `SELECT
+                  employee.id AS "ID",
+                    employee.first_name AS "First",
+                    employee.last_name AS "Last",
+                    role.title AS "Title",
+                    department.name AS "Department",
+                    role.salary AS "Salary",
+                    CONCAT(manager.first_name,' ', manager.last_name) AS "Manager"
+                FROM
+                  employee
+                LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+                JOIN role ON employee.role_id = role.id
+                JOIN department ON role.department_id = department.id
+                WHERE employee.manager_id = ?;`,
+                [
+                  answers.managerSelect,
+                ],
+                (err, res) => {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(`
 #=================================================================#
-                All Employees Sorted by Manager
+                          View By Manager
 #=================================================================#
-            \n`);
-            console.table(response);
-            mainMenu();
-        });
+                  `);
+                  console.table(res);
+                  mainMenu();
+                }
+              );
+            });
+    });
 }
 // ----------------------------------------------------------------
 
@@ -234,7 +265,7 @@ function addEmployee() {
               },
               {
                 type: "list",
-                name: "mangerSelect",
+                name: "managerSelect",
                 message: "Who is their Manager?",
                 choices: managers,
               },
@@ -246,7 +277,7 @@ function addEmployee() {
                   answers.first,
                   answers.last,
                   answers.roleSelect,
-                  answers.mangerSelect,
+                  answers.managerSelect,
                 ],
                 (err, res) => {
                   if (err) {
