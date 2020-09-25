@@ -3,6 +3,7 @@ const connection = require("./db/connection");
 const cTable = require('console.table');
 const inquirer = require("inquirer");
 // var queryAllEmployees = require("./db/query");
+var departmentList = [];
 
 
 // Initiate connection to MySQL server
@@ -27,8 +28,8 @@ function mainMenu() {
           message: "Main Menu\nPlease select from the following options",
           choices: [
             "View All Employees",
-            "View Employees by Department",
-            "View Employees by Manager",
+            "View All Employees by Department",
+            "View All Employees by Manager",
             "Add New Employee",
             "Remove Emplyee",
             "Update Employee's Role",
@@ -45,11 +46,11 @@ function mainMenu() {
           case "View All Employees":
             queryAllEmployees();
             break;
-          case "View Employees by Department":
-            viewDepartments();
+          case "View All Employees by Department":
+            queryAllByDepartment();
             break;
-          case "View Employees by Manager":
-            viewManagers();
+          case "View All Employees by Manager":
+            queryAllByManager();
             break;
           case "Add New Employee":
             addNewEmployee();
@@ -76,8 +77,7 @@ function mainMenu() {
             "Hmmm, that's not supposed to happen...";
         }
       });
-  }
-
+}
 
 function queryAllEmployees() {
     connection.query(
@@ -93,7 +93,56 @@ function queryAllEmployees() {
           employee
         LEFT JOIN employee AS manager ON employee.manager_id = manager.id
         JOIN role ON employee.role_id = role.id
-        JOIN department ON role.department_id = department.id;`,
+        JOIN department ON role.department_id = department.id
+        ORDER BY employee.first_name;`,
+        function(error, response) {
+            if (error) throw error;
+            console.log('\n');
+            console.table(response);
+            mainMenu();
+        });
+}
+
+function queryAllByDepartment() {
+    connection.query(
+        `SELECT
+        employee.id AS "ID",
+          employee.first_name AS "First",
+          employee.last_name AS "Last",
+          role.title AS "Title",
+          department.name AS "Department",
+          role.salary AS "Salary",
+          CONCAT(manager.first_name,' ', manager.last_name) AS "Manager"
+        FROM
+          employee
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+        JOIN role ON employee.role_id = role.id
+        JOIN department ON role.department_id = department.id
+        ORDER BY department.id;`,
+        function(error, response) {
+            if (error) throw error;
+            console.log('\n');
+            console.table(response);
+            mainMenu();
+        });
+}
+
+function queryAllByManager() {
+    connection.query(
+        `SELECT
+        employee.id AS "ID",
+          employee.first_name AS "First",
+          employee.last_name AS "Last",
+          role.title AS "Title",
+          department.name AS "Department",
+          role.salary AS "Salary",
+          CONCAT(manager.first_name,' ', manager.last_name) AS "Manager"
+        FROM
+          employee
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+        JOIN role ON employee.role_id = role.id
+        JOIN department ON role.department_id = department.id
+        ORDER BY manager;`,
         function(error, response) {
             if (error) throw error;
             console.log('\n');
