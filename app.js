@@ -26,13 +26,12 @@ function mainMenu() {
       .prompt([
         {
           type: "list",
-          message: "Main Menu\nPlease select from the following options",
+          message: "\n\nMain Menu\nPlease select from the following options",
           choices: [
             "View All Employees",
             "View Employees by Department",
             "View Employees by Manager",
             "Add New Employee",
-            "Remove Emplyee",
             "Update Employee's Role",
             "Update Emplyee's Manager",
             "View All Roles",
@@ -54,10 +53,7 @@ function mainMenu() {
             queryAllByManager();
             break;
           case "Add New Employee":
-            getNewEmployeeInfo();
-            break;
-          case "Remove Employee":
-            removeEmplyee();
+            addEmployee();
             break;
           case "Update Employee's Role":
             updateEmployeeRole();
@@ -168,135 +164,80 @@ function queryAllByManager() {
 }
 // ----------------------------------------------------------------
 
-var roleList = [];
-var employeeList = [];
-
-// Get roles list to display
-function getRoleList() {
-  return new Promise(function (resolve, reject) {
-      connection.query(
-          'SELECT * FROM role',
-          [],
-          function (error, data) {
-              if (error) reject(error);
-              resolve(data.map(record => record.title))
-          });
-  }).then(function (roles) {
-    roles.forEach(title => {
-      roleList.push(title);
-    })
-});
-}
-
-// Get employee list to display
-function getEmployeeList() {
-  return new Promise(function (resolve, reject) {
-      connection.query(
-          `SELECT * FROM employee`,
-          [],
-          function (error, data) {
-              if (error) reject(error);
-              resolve(data.map(record => record.first_name))
-          });
-  }).then(function (employees) {
-    employees.forEach(names => {
-      employeeList.push(names);
-    })
-});
-}
-
-
-function getNewEmployeeInfo() {
-  getRoleList();
-  getEmployeeList();
-  inquirer
-      .prompt([
-        {
-          type: "inpput",
-          message: "New Employee\nEnter Employee's First Name",
-          name: "firstName"
-        },
-        {
-          type: "inpput",
-          message: "New Employee\nEnter Employee's Last Name",
-          name: "lastName"
-        },
-        {
-          name: 'roles',
-          message: 'Select Job Title',
-          type: 'list',
-          choices: roleList
-        },
-        {
-          name: 'manager',
-          message: 'Select Employee\'s Manager',
-          type: 'list',
-          choices: employeeList
-        }
-      ])
-      .then(function ({ firstName, lastName, roles, manager }) {
-        newEmployee.fName = firstName;
-        newEmployee.lName = lastName;
-        newEmployee.role = roles;
-        newEmployee.manager = manager;
-        buildNewEmployeeQuery(newEmployee);
-        console.log(newEmployee);
+// Get New Employee and INSERT to database
+function addEmployee() {
+  connection
+    .query("SELECT role.id, role.title FROM role", (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const roles = res.map((row) => {
+        return {
+          name: row.title,
+          value: row.id,
+        };
       });
-}
-
-// Get Job Title ID list to display
-var newRoleID = 0;
-
-function getRoleID(jobTitle) {
-  var queryString = 'SELECT * FROM role WHERE role.title = ';
-  queryString += "\"" + jobTitle + "\";";
-  console.log("Get Role ID String: " + queryString);
-
-  return new Promise(function (resolve, reject) {
       connection.query(
-          queryString,
-          [],
-          function (error, data) {
-              if (error) reject(error);
-              resolve(data.map(record => record.id))
-              // resolve(data);
+        "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS manager, employee.id FROM employee",
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+          const managers = res.map((element) => {
+            return {
+              name: element.manager,
+              value: element.id,
+            };
           });
-  }).then(function (titleID) {
-    newRoleID = titleID;
-    console.log("THIS IS THE ROLE ID: " + titleID);
-    console.log("THIS IS THE ROLE ID: " + newRoleID);
-});
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "first",
+                message: "What is the employees first name",
+              },
+              {
+                type: "input",
+                name: "last",
+                message: "What is the employees last name",
+              },
+              {
+                type: "list",
+                name: "roleSelect",
+                message: "What is their role?",
+                choices: roles,
+              },
+              {
+                type: "list",
+                name: "mangerSelect",
+                message: "Who is their Manager?",
+                choices: managers,
+              },
+            ])
+            .then((answers) => {
+              connection.query(
+                "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ?)",
+                [
+                  answers.first,
+                  answers.last,
+                  answers.roleSelect,
+                  answers.mangerSelect,
+                ],
+                (err, res) => {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(`
+#=================================================================#
+                    Employee Succesfully Added
+#=================================================================#
+                  `);
+                  mainMenu();
+                }
+              );
+            });
+        }
+      );
+    });
 }
 
-
-
-function buildNewEmployeeQuery(newEmployee) {
-  getRoleID(newEmployee.role).then(function(){
-    var queryString = "INSERT INTO employee";
-
-  queryString += " (first_name, last_name, role_id, manager_id) ";
-  queryString += "VALUES (";
-  queryString += newEmployee.fName + ", " +
-    newEmployee.lName + ", " +
-    newRoleID + ", " +  // <--- Role ID
-    newEmployee.manager;
-  queryString += ") ";
-
-  console.log("This is the query string: \n" + queryString);
-  })
-
-  
-  // return new Promise(function (resolve, reject) {
-  //   connection.query(
-  //     queryString,
-  //     [],
-  //     function (error, data) {
-  //       if (error) reject(error);
-  //       resolve(data.map(record => record.title))
-  //     });
-  // }).then(function (roles) {
-  //     roles.forEach(title => {
-  //     roleList.push(title);
-  //     })
-  // });
-}
