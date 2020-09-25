@@ -237,6 +237,7 @@ function addEmployee() {
     });
 }
 
+// Get new Department and INSERT to database
 function addDepartment() {
   inquirer
       .prompt([
@@ -263,7 +264,7 @@ function addDepartment() {
       });
 }
 
-
+// Get new Role and INSERT to database
 function addRole() {
   connection
     .query("SELECT department.id, department.name FROM department", (err, res) => {
@@ -316,5 +317,70 @@ function addRole() {
                 }
               );
             });
+    });
+}
+
+// Update the employee's role in the database
+function updateEmployeeRole() {
+  connection
+    .query("SELECT role.id, role.title FROM role", (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const roles = res.map((row) => {
+        return {
+          name: row.title,
+          value: row.id,
+        };
+      });
+      connection.query(
+        "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS currentEmployee, employee.id FROM employee",
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+          const employees = res.map((element) => {
+            return {
+              name: element.currentEmployee,
+              value: element.id,
+            };
+          });
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                name: "employeeSelect",
+                message: "Whose role would you like to update?",
+                choices: employees,
+              },
+              {
+                type: "list",
+                name: "roleSelect",
+                message: "What is their new role?",
+                choices: roles,
+              },
+            ])
+            .then((answers) => {
+              connection.query(
+                "UPDATE employee SET employee.role_id = ? WHERE employee.id = ?;",
+                [
+                  answers.roleSelect,
+                  answers.employeeSelect,
+                ],
+                (err, res) => {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(`
+#=================================================================#
+                Employee Role Succesfully Updated
+#=================================================================#
+                  `);
+                  mainMenu();
+                }
+              );
+            });
+        }
+      );
     });
 }
