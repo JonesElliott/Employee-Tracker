@@ -262,3 +262,59 @@ function addDepartment() {
           });
       });
 }
+
+
+function addRole() {
+  connection
+    .query("SELECT department.id, department.name FROM department", (err, res) => {
+      if (err) {
+        throw err;
+      }
+      const departments = res.map((row) => {
+        return {
+          name: row.name,
+          value: row.id,
+        };
+      });
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "roleInput",
+                message: "What is the new role?",
+              },
+              {
+                type: "input",
+                name: "salaryInput",
+                message: "What is this role's salary?",
+              },
+              {
+                type: "list",
+                name: "departmentSelect",
+                message: "What department is this role in?",
+                choices: departments,
+              }
+            ])
+            .then((answers) => {
+              connection.query(
+                "INSERT INTO role (title, salary, department_id) VALUES ( ?, ?, ?)",
+                [
+                  answers.roleInput,
+                  answers.salaryInput,
+                  answers.departmentSelect,
+                ],
+                (err, res) => {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(`
+#=================================================================#
+                      Role Succesfully Added
+#=================================================================#
+                  `);
+                  mainMenu();
+                }
+              );
+            });
+    });
+}
