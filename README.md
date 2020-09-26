@@ -22,7 +22,7 @@ Create database with schema.sql and seed with seed.sql. Navigate to root folder 
 
 ## Usage
 
-![Video Demo](https://drive.google.com/file/d/1f7QbQiwKl2YSuCaGpLJwqrxsygjZjeJ_/view)
+[Video Demo](https://drive.google.com/file/d/1f7QbQiwKl2YSuCaGpLJwqrxsygjZjeJ_/view)
 
 On launch, main menu is displayed with the following options:
 
