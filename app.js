@@ -1,10 +1,6 @@
-const mysql = require("mysql");
 const connection = require("./db/connection");
-const cTable = require('console.table');
 const inquirer = require("inquirer");
 var Employee = require('./scripts/employee');
-const { connect, query } = require("./db/connection");
-
 var newEmployee = new Employee();
 
 // Initiate connection to MySQL server
@@ -40,7 +36,7 @@ function mainMenu() {
       .prompt([
         {
           type: "list",
-          message: "\n\nMain Menu\nPlease select from the following options",
+          message: "\n\nMain Menu\nPlease select from the following options:",
           choices: [
             "View All Employees",
             "View Employees by Department",
@@ -85,6 +81,7 @@ function mainMenu() {
         }
       });
 }
+
 
 // Functions that Query the database based on specific params
 //----------------------------------------------------------------
@@ -232,7 +229,9 @@ function queryByManager() {
 }
 // ----------------------------------------------------------------
 
-// Get New Employee and INSERT to database
+
+// Add new items to database
+// ----------------------------------------------------------------
 function addEmployee() {
   connection
     .query("SELECT role.id, role.title FROM role", (err, res) => {
@@ -262,12 +261,12 @@ function addEmployee() {
               {
                 type: "input",
                 name: "first",
-                message: "What is the employees first name",
+                message: "What is the employee's first name?",
               },
               {
                 type: "input",
                 name: "last",
-                message: "What is the employees last name",
+                message: "What is the employee's last name?",
               },
               {
                 type: "list",
@@ -309,13 +308,12 @@ function addEmployee() {
     });
 }
 
-// Get new Department and INSERT to database
 function addDepartment() {
   inquirer
       .prompt([
         {
           type: "input",
-          message: "Enter the name of the new Depeartment",
+          message: "Enter the name of the new Depeartment:",
           name: "newDepartment",
         },
       ])
@@ -336,7 +334,6 @@ function addDepartment() {
       });
 }
 
-// Get new Role and INSERT to database
 function addRole() {
   connection
     .query("SELECT department.id, department.name FROM department", (err, res) => {
@@ -354,17 +351,17 @@ function addRole() {
               {
                 type: "input",
                 name: "roleInput",
-                message: "What is the new role?",
+                message: "Enter new role:",
               },
               {
                 type: "input",
                 name: "salaryInput",
-                message: "What is this role's salary?",
+                message: "Enter salary for this role:",
               },
               {
                 type: "list",
                 name: "departmentSelect",
-                message: "What department is this role in?",
+                message: "Which department does this role belong to?",
                 choices: departments,
               }
             ])
@@ -391,8 +388,11 @@ function addRole() {
             });
     });
 }
+// ----------------------------------------------------------------
 
-// Update the employee's role in the database
+
+// Update items in database
+// ----------------------------------------------------------------
 function updateEmployeeRole() {
   connection
     .query("SELECT role.id, role.title FROM role", (err, res) => {
@@ -457,7 +457,6 @@ function updateEmployeeRole() {
     });
 }
 
-// Update the employee's manager in the database
 function updateEmployeeManager() {
       connection.query(
         "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS currentEmployee, employee.id FROM employee",
@@ -476,7 +475,7 @@ function updateEmployeeManager() {
               {
                 type: "list",
                 name: "employeeSelect",
-                message: "Whose manger would you like to update?",
+                message: "Whose manager would you like to update?",
                 choices: employees,
               },
               {
@@ -509,3 +508,4 @@ function updateEmployeeManager() {
         }
       );
 }
+// ----------------------------------------------------------------
