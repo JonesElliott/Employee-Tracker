@@ -13,8 +13,22 @@ connection.connect(function(error) {
     console.log("Connected as id " + connection.threadId + "\n\n");
     console.log(`
 #=================================================================#
-|                       Employee Manager                          |
-|                Micro-Management at it's finest                  |
+#           ______                _                               #
+#           |  ___|              | |                              #
+#           | |__ _ __ ___  _ __ | | ___  _   _  ___  ___         #
+#           |  __| '_ \` _ \\| '_ \\| |/ _ \\| | | |/ _ \\/ _ \\        #
+#           | |__| | | | | | |_) | | (_) | |_| |  __/  __/        #
+#           \\____/_| |_| |_| .__/|_|\\___/ \\__, |\\___|\\___|        #
+#                           | |           __/  |                  #
+#                           |_|           |___/                   #
+#           ___  ___                                              #
+#           |  \\/  |                                              #
+#           | .  . | __ _ _ __   __ _  __ _  ___ _ __             #
+#           | |\\/| |/ _\` | '_ \\ / _\` |/ _\` |/ _ \\ '__|            #
+#           | |  | | (_| | | | | (_| | (_| |  __/ |               #
+#           \\_|  |_/\\__,_|_| |_|\\__,_|\\__, |\\___|_|               #
+#                                     __/  |                      #
+# https://github.com/JonesElliott     |___/                       #
 #=================================================================#
         `);
     mainMenu();
@@ -94,7 +108,7 @@ function queryAllEmployees() {
             if (error) throw error;
             console.log(`
 #=================================================================#
-                  All Employees Sorted A - Z
+#                 All Employees Sorted A - Z                      #
 #=================================================================#
             \n`);
             console.table(response);
@@ -148,7 +162,7 @@ function queryByDepartment() {
                   }
                   console.log(`
 #=================================================================#
-                        View By Department
+#                       View By Department                        #
 #=================================================================#
                   `);
                   console.table(res);
@@ -206,7 +220,7 @@ function queryByManager() {
                   }
                   console.log(`
 #=================================================================#
-                          View By Manager
+#                         View By Manager                         #
 #=================================================================#
                   `);
                   console.table(res);
@@ -283,7 +297,7 @@ function addEmployee() {
                   }
                   console.log(`
 #=================================================================#
-                    Employee Succesfully Added
+#                   Employee Succesfully Added                    #
 #=================================================================#
                   `);
                   mainMenu();
@@ -314,7 +328,7 @@ function addDepartment() {
               if (error) throw error;
               console.log(`
 #=================================================================#
-                  Department Succesfully Added
+#                 Department Succesfully Added                    #
 #=================================================================#
               \n`);
               mainMenu();
@@ -368,7 +382,7 @@ function addRole() {
                   }
                   console.log(`
 #=================================================================#
-                      Role Succesfully Added
+#                     Role Succesfully Added                      #
 #=================================================================#
                   `);
                   mainMenu();
@@ -431,7 +445,7 @@ function updateEmployeeRole() {
                   }
                   console.log(`
 #=================================================================#
-                Employee Role Succesfully Updated
+#               Employee Role Succesfully Updated                 #
 #=================================================================#
                   `);
                   mainMenu();
@@ -485,7 +499,7 @@ function updateEmployeeManager() {
                   }
                   console.log(`
 #=================================================================#
-                Employee manager Succesfully Updated
+#               Employee manager Succesfully Updated              #
 #=================================================================#
                   `);
                   mainMenu();
